@@ -14,10 +14,10 @@ def run_tender_agent(vector_store: TenderVectorStore) -> dict:
     llm = get_llm().with_structured_output(TenderDetails)
     prompt = f"""
     You are an expert Tender Intake Agent. Extract the basic details from this RFP context:
-    
+
     {context}
     """
-   result = llm.invoke(prompt)
+    result = llm.invoke(prompt)
     if isinstance(result, dict):
         return result
     return result.model_dump()
