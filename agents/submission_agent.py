@@ -20,5 +20,7 @@ def run_submission_agent(vector_store: TenderVectorStore) -> dict:
     TENDER SUBMISSION GUIDELINES:
     {context}
     """
-    result: SubmissionChecklist = llm.invoke(prompt)
+    result = llm.invoke(prompt)
+    if isinstance(result, dict):
+        return result
     return result.model_dump()
