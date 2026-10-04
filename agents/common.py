@@ -3,11 +3,11 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 
 def get_llm(temperature: float = 0.0) -> ChatGoogleGenerativeAI:
     api_key = (
-        os.getenv("GEMINI_API_KEY")
+        os.getenv("GEMINI_API_KEY") 
         or os.getenv("GOOGLE_API_KEY")
     )
     
-    # Use standard gemini-2.5-flash which is active and supports structured output
+    # Do NOT include "models/" prefix. Modern langchain-google-genai handles prefixes internally.
     return ChatGoogleGenerativeAI(
         model="gemini-2.5-flash",
         temperature=temperature,
