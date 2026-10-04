@@ -21,5 +21,7 @@ def run_risk_agent(vector_store: TenderVectorStore, company_profile: dict) -> di
     TENDER RISK CLAUSES & SCHEDULE:
     {context}
     """
-    result: RiskReport = llm.invoke(prompt)
+    result = llm.invoke(prompt)
+    if isinstance(result, dict):
+        return result
     return result.model_dump()
