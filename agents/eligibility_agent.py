@@ -13,6 +13,7 @@ class EligibilityReport(BaseModel):
 def run_eligibility_agent(vector_store: TenderVectorStore, company_profile: dict) -> dict:
     context = vector_store.query("mandatory requirements qualifications past performance certifications revenue clearance", k=5)
     llm = get_llm().with_structured_output(EligibilityReport)
+    
     prompt = f"""
     You are an Eligibility Evaluation Agent. Compare this Company Profile against the Tender Requirements.
     
@@ -27,5 +28,10 @@ def run_eligibility_agent(vector_store: TenderVectorStore, company_profile: dict
     TENDER PREREQUISITES CONTEXT:
     {context}
     """
-    result: EligibilityReport = llm.invoke(prompt)
+    
+    result = llm.invoke(prompt)
+    
+    # Safe return: supports both Pydantic instance and direct dict from Groq
+    if isinstance(result, dict):
+        return result
     return result.model_dump()
