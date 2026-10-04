@@ -18,5 +18,9 @@ def run_compliance_agent(vector_store: TenderVectorStore) -> dict:
     TENDER CONTRACT CONTEXT:
     {context}
     """
-    result: ComplianceReport = llm.invoke(prompt)
+    result = llm.invoke(prompt)
+    
+    # Safe return: supports both Pydantic instance and direct dict from Groq
+    if isinstance(result, dict):
+        return result
     return result.model_dump()
