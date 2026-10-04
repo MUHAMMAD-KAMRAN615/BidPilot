@@ -117,22 +117,29 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # API Key Authentication Setup
-api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+api_key = os.getenv("GROQ_API_KEY", "")
 try:
-    if not api_key and "GEMINI_API_KEY" in st.secrets:
-        api_key = st.secrets["GEMINI_API_KEY"]
+    if not api_key and "GROQ_API_KEY" in st.secrets:
+        api_key = st.secrets["GROQ_API_KEY"]
 except Exception:
     pass
 
-# Sidebar Configuration
+# Sidebar: Bidder Profile Configuration
 with st.sidebar:
     st.image("https://img.icons8.com/isometric/100/combo-chart.png", width=64)
     st.markdown("### 🏢 Bidder Profile")
     st.caption("Active operational baseline compared against tender prerequisites.")
     
-    if not api_key:
-        api_key = st.text_input("Gemini API Key", type="password", placeholder="Enter AI Studio Key...")
-    
+    api_key_input = st.text_input(
+        "Groq API Key", 
+        value=api_key or "", 
+        type="password", 
+        placeholder="gsk_..."
+    )
+    if api_key_input:
+        api_key = api_key_input
+        os.environ["GROQ_API_KEY"] = api_key
+
     company_name = st.text_input("Entity Name", "Apex Cyber Cloud Solutions Inc.")
     annual_revenue = st.number_input("Annual Revenue ($)", value=5500000.0, step=500000.0)
     employee_count = st.number_input("Full-time Employees", value=48, step=5)
@@ -143,10 +150,6 @@ with st.sidebar:
         default=["ISO9001", "SOC2_TYPE_II"]
     )
     competencies = st.text_area("Core Capabilities", "Cloud Architecture, Database Migration, DevSecOps")
-
-if api_key:
-    os.environ["GEMINI_API_KEY"] = api_key
-    os.environ["GOOGLE_API_KEY"] = api_key
 
 profile = {
     "name": company_name,
@@ -178,16 +181,16 @@ if uploaded_file:
     st.session_state["current_file"] = uploaded_file.name
 
 if uploaded_file and not api_key:
-    st.warning("⚠️ Enter your Gemini API Key in the left sidebar to initialize the multi-agent system.")
+    st.warning("⚠️ Enter your Groq API Key in the left sidebar to initialize the multi-agent system.")
 
 if uploaded_file and api_key:
-    with tempfile.NamedTemporaryFile(delete=False, suffix=f"_{uploaded_file.name}") as tmp:
-        tmp.write(uploaded_file.getbuffer())
-        tmp_path = tmp.name
-
-    tender_id = uploaded_file.name.replace(".", "_")
-
     if st.button("🚀 Run Multi-Agent Evaluation", type="primary", use_container_width=True):
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f"_{uploaded_file.name}") as tmp:
+            tmp.write(uploaded_file.getbuffer())
+            tmp_path = tmp.name
+
+        tender_id = uploaded_file.name.replace(".", "_")
+
         with st.status("🔍 Analyzing Tender Solicitation...", expanded=True) as status:
             st.write("Chunking document & generating semantic embeddings...")
             vs = TenderVectorStore(tender_id)
