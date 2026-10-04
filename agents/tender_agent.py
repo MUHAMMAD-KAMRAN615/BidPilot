@@ -17,5 +17,9 @@ def run_tender_agent(vector_store: TenderVectorStore) -> dict:
     
     {context}
     """
-    result: TenderDetails = llm.invoke(prompt)
+    result = llm.invoke(prompt)
+    
+    # Safe return: handles both Pydantic object and raw dict returned by Groq
+    if isinstance(result, dict):
+        return result
     return result.model_dump()
